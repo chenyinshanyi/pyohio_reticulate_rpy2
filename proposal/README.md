@@ -7,4 +7,5 @@ Aspiring analytics professionals often feel the need to choose & learn a 'one si
 
 In this talk, we’ll present methods for leveraging R from directly within Python environments (and vice versa).  We will illustrate the use of these methods by using popular libraries to execute common analytics tasks across languages (image processing, web scraping, time series forecasting, anomaly detection) without switching development environments.
 
+---
 ### Detailed Abstract
