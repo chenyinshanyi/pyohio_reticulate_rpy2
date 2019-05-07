@@ -5,5 +5,10 @@ Directory structure:
   - [proposal](proposal/README.md)
   - data
   - notebooks
-    - python
+    - python from r
+      - web scraping
+      - open cv
     - r
+      - time series forecasting
+      - anomaly detection
+      - causal inference
