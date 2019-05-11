@@ -1,5 +1,6 @@
 # PyOhio 2019 Talk Proposal: Using Python & R in Harmony
 _Krista Readout & Matthew Brower_
+
 _May 2019_
 
 ### Brief Description:
