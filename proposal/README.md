@@ -22,13 +22,18 @@ In this talk, we’ll present methods for leveraging R from directly within Pyth
 - Using Python from Within R with [`reticulate`](https://rstudio.github.io/reticulate/)
   - Environment setup & requirements
   - Use case demonstration (one of the following TBD)
-    - Web scraping with [`BeautifulSoup`](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+    - Web scraping with [`BeautifulSoup`](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) or [`scrapy`](https://scrapy.org/)
+      - R's web scraping options are limited & Python has mature, widely-used libraries available for use
     - Predictive modeling with [`scikit-learn`](https://scikit-learn.org/stable/)
+      - R has many modeling libraries, but the interfaces are often inconsistent which results in fragmented code.  `scikit-learn` provides a unified interface to many different modeling techniques for faster, cleaner iteration on projects.
 - Using R from within Python with [`rpy2`](https://rpy2.readthedocs.io/en/version_2.8.x/index.html)
   - Environment setup & requirements
   - Use case demonstration (one of the following TBD)
     - Anomaly detection using Twitter's [`AnomalyDetection`](https://github.com/twitter/AnomalyDetection) package
+      - There's no popular Python equivalent to this package (used at many e-commerce companies to detect sudden changes in KPIs), so why not wrap it in `rpy2`?
     - Time series forecasting with Rob Hyndman's [`forecast`](http://pkg.robjhyndman.com/forecast/) package
+      - `forecast` provides a great interface for many different kinds of time-series forecasts (ARIMA, TBATS, etc.)
     - Causal inference with Google's [`CausalImpact`](https://google.github.io/CausalImpact/CausalImpact.html) package
+      - There's no popular Python equivalent to this package used for estimating the impact of an event / policy change without A/B testing.  Let's use it via R!
 - Learning resources
 - Q&A
