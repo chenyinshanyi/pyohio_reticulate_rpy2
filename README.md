@@ -7,7 +7,7 @@ Directory structure:
   - notebooks
     - python from r
       - web scraping
-      - open cv
+      - predictive modeling
     - r
       - time series forecasting
       - anomaly detection
