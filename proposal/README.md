@@ -4,7 +4,7 @@ _Krista Readout & Matthew Brower_
 _May 2019_
 
 ### Brief Description:
-Python and R are two of the most popular languages used for data analysis. They are often pitted against each other, forcing users to pick just one. Each has unique advantages, and it's now easier than ever to use them in the same project. Python or R? Why not both?
+Python and R are two of the most popular languages used for data analysis. They are often pitted against each other in pro con lists, forcing users to pick just one. Each has unique advantages, and it's now easier than ever to use them in the same project. Python or R? Why not both?
 
 ---
 ### Detailed Abstract & Outline:
