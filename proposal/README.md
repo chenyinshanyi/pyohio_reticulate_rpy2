@@ -26,7 +26,7 @@ In this talk, we’ll present methods for leveraging R from directly within Pyth
   - Environment setup & requirements
   - Use case demonstration (one of the following TBD)
     - Anomaly detection using Twitter's [`AnomalyDetection`](https://github.com/twitter/AnomalyDetection) package
-      - There's no popular Python equivalent to this package (used at many e-commerce companies to detect sudden changes in KPIs).
+      - There's no popular Python equivalent to this package used by many to easily detect sudden changes in key metrics.
     - Time series forecasting with Rob Hyndman's [`forecast`](http://pkg.robjhyndman.com/forecast/) package
       - `forecast` provides a great interface for many different kinds of time-series forecasts (ARIMA, TBATS, etc.); a one-stop shop that's lacking an analogous equivalent in Python.
     - Causal inference with Google's [`CausalImpact`](https://google.github.io/CausalImpact/CausalImpact.html) package
