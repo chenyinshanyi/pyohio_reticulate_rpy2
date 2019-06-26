@@ -38,3 +38,5 @@ rsconnect/
 # reticulate libraries
 r/reticulate_walkthrough/packrat/lib*/
 
+# MacOs
+.DS_Store
