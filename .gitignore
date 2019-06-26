@@ -16,7 +16,7 @@
 
 # RStudio files
 .Rproj.user/
-
+ofd
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
@@ -37,6 +37,7 @@ rsconnect/
 
 # reticulate libraries
 r/reticulate_walkthrough/packrat/lib*/
+r/recitulate/packrat/src/
 
 # MacOs
 .DS_Store
