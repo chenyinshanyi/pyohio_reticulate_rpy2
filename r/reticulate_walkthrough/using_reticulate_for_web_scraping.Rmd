@@ -2,6 +2,17 @@
 title: "Using Python from within R"
 output: github_document
 ---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "120%",
+  out.height = '200%',
+  dpi = 200
+)
+```
 ## Context
 R & Python are two of the most popular languages used in analytics. Each have their unique advantages, and it's now easier than ever before to use them both within the same environment.  
 
@@ -18,8 +29,8 @@ From RStudio:
 >>  - Flexible binding to different versions of Python including virtual environments and Conda environments.
 
 ---
-
-Load the R libraries we'll use for our analysis.
+## Using reticulate
+Let's start by loading the R libraries we'll use for our analysis.
 ```{r message=FALSE, warning=FALSE}
 library(reticulate) ## load the reticulate library
 library(tidyverse) ## loading for data wrangling and visualization
@@ -28,23 +39,24 @@ library(glue) ## loading this to help with creating URLs to hit a web API
 
 Before we get into an applied example, here's some general housekeeping and helpful info for using `reticulate`:
 
-Reticulate allows for the use & creation of virtual environments for Python.  Virtual environments allow you to define an isolated version of Python that operates completely separate from the main version of Python installed on your computer.  
+- Reticulate allows for the use & creation of virtual environments for Python.  
+- Virtual environments allow you to define an isolated version of Python that operates completely separate from the main version of Python installed on your computer.  
 
-The packages you install in a virtual environment are isolated as well, which is nice, because otherwise there's a risk you'd overwrite the versions of packages your computer depends on -- which could lead to major issues.  [Here's a link](https://docs.python.org/3/tutorial/venv.html) to virtual environment documentation in case you'd like to learn more.
+The packages you install in a virtual environment are isolated as well, which is nice, because otherwise there's a risk you'd overwrite the versions of packages your computer depends on -- which could lead to major issues.  [Here's a link](https://docs.python.org/3/tutorial/venv.html) to virtual environment documentation in case you'd like to learn more about how to leverage this in Python.
 
 This is the way you'd generally initiate a virtual environment for Python in your terminal.
 ```{bash eval=FALSE,message=FALSE,warning=FALSE}
 workon instacart3
 ```
 
-When using `reticulate`, the call is slightly different.  Note that I'm using Python3 in this notebook.  YMMV if using Python2.
+When using `reticulate`, however, the call is slightly different.  Note that I'm using Python 3 in this notebook.
 ```{r}
 use_virtualenv('instacart3')
 ```
 
 Reticulate also allows for the installation and import of Python packages.  
 
-For reference, here's how you'd generally install Python packages _outside_ of reticulate using the command line and the `pip` package manager (`conda` is also a popular one!).
+For reference, here's how you'd generally install Python packages _outside_ of reticulate using the command line and the `pip` package manager (`conda` is also a popular Python package and environment manager).
 ```{bash, eval=FALSE}
 pip install pandas
 pip install requests
@@ -52,26 +64,24 @@ pip install requests
 
 
 
-For installation of packages in `reticulate`, you can specify the virtual environment where you want to use and include an R list of the Python packages you'd like to install.
+For installation of packages in `reticulate`, you can specify the virtual environment you want to use and include an R list of the Python packages you'd like to install to the envioronment.  
 ```{r, eval=FALSE}
 virtualenv_install('instacart3',c('pandas','requests'))
 ```
+Note: if you don't specify a virtual environment, reticulate will automatically create one called "r-reticulate" so as not to destroy your system's default Python installation.
 
-
-
-
-For reference, here's how we'd do this within a Python environment outside of R.
+The obvious next step here is to load these libraries so we can use them.  For reference, here's how we'd do this within a Python environment outside of R.
 ```{python, message=FALSE,eval=FALSE}
 import pandas
 import requests
 import pandas.io.json
 ```
 
-Here's the reticulate equivalent.  Note that you cannot import specific components of a Python library here.
+Here's the reticulate equivalent.  Note that you cannot import specific components of a Python library here - it's all or nothing.
 ```{r,message=FALSE}
 pandas = import('pandas')
-pandas_io = import('pandas.io.json')
 requests = import('requests')
+pandas_io = import('pandas.io.json')
 ```
 
 Once you've imported packages, you can reference the functions within them by using the `<package_name>$<function_name>` notation (as opposed to the `<package_name>.<function_name>` notation in Python.)  
@@ -84,8 +94,13 @@ pandas$pivot
 
 ## Applied Example: scraping weather.gov data
 
+I'm from Akron, Ohio where the weather is usually cloudy and it's cold for at least 6 months out of the year.  Northern California is great; I've really been fascinated by the climates of each San Francisco neighborhood and nearby cities.
+
+The National Weather Service (NWS) has a [web API](https://www.weather.gov/documentation/services-web-api) that can be used to retrieve recently-recorded temperatures from weather stations across the US.  To explore the Bay Area's various climates, I decided it'd be fun to pull temperature observations for a list of nearby weather stations.
+
+To speed up the tutorial here for a moment - I'm starting with a pre-built list of area weather stations. 
 ```{r, warning=FALSE, message=FALSE}
-stations = read_csv('/Users/matthewbrower/git/pyohio_reticulate_rpy2/r/station_identifiers.csv')
+stations = read_csv('/Users/matthewbrower/git/pyohio_reticulate_rpy2/r/reticulate_walkthrough/data/station_identifiers.csv')
 ```
 
 
@@ -93,16 +108,41 @@ stations = read_csv('/Users/matthewbrower/git/pyohio_reticulate_rpy2/r/station_i
 stations
 ```
 
+We can hit the web API to grab recent observations from a given station with the following URL structure:
+`https://api.weather.gov/stations/<STATION_ID>/observations`
 
+
+
+Here's a snippet of the JSON response we get when we hit this API with the San Francisco Airport supplied as the weather station.
+```{bash,output.lines=35}
+curl https://api.weather.gov/stations/KSFO/observations | tail -n 75
+```
+
+I can only retrieve data from one station identifier at a time, so I need to build a script that can either loop over these station names and pull this data or write a function that can be applied over each row of the dataframe.  
+
+Since this data is returned as a nested JSON object, I **also** need to extract each individual temperature observation and place it into a dataframe.
+
+Web scraping & API interaction are both areas where Python arguably has more robust libraries than R.  While it's certainly not to say there are packages in R that _could_ handle the following work elegantly, I've elected to use Python here for the sake of a simple example.
+
+I think for loops are typically easier to explain step by step, so I've built one below.
+
+Let's start by verbosely breaking out the URL into components that we can glue together as we iterate over weather stations.
 ```{r}
 base_url = 'https://api.weather.gov/stations/'
 resource = '/observations?'
+station = NULL
 ```
 
-This is a little inelegant, but I'm using for loops here to more clearly show the discrete steps in the scraping process and show where Python is being leveraged.
 
+Ultimately we want to store each temperature observation from each station into a dataframe.  This step creates a 'parking lot' of sorts for our data to be appended to as we go through each part of the loop.
 ```{r}
 temps = data.frame(NULL)
+```
+
+
+
+```{r}
+## 
 for (i in seq_along(stations$station_identifier)){
 
   station = stations$station_identifier[i]
@@ -119,7 +159,7 @@ for (i in seq_along(stations$station_identifier)){
     
     record = tibble(date=content_2$features[[j]]$properties$timestamp[1],
                         temp=round(content_2$features[[j]]$properties$temperature[1]$value*(9/5)+32,2),
-                        station_name=stations$name[i],
+                        station_name=stations$short_name[i],
                         station_id = station)
     
     temps=bind_rows(record,temps)

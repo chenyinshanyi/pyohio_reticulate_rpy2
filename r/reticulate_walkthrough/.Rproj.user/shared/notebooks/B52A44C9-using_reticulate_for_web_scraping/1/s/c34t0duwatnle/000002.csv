@@ -1,3 +1,0 @@
-"0","library(reticulate) ## load the reticulate library"
-"0","library(tidyverse) ## loading for data wrangling and visualization"
-"0","library(glue) ## loading this to help with creating URLs to hit a web API"
