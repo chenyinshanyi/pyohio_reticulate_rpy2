@@ -10,8 +10,8 @@ use them both within the same environment.
 In this notebook, we’ll leverage
 [`reticulate`](https://rstudio.github.io/reticulate/), a package created
 for using Python from within R. We’ll do this by walking through a
-common data science use case so you have some intuidion for how & when
-to use this within your own workflows.
+common data science use case to provide some intuition for how & when to
+use this within your own workflows.
 
 From RStudio:
 
@@ -65,14 +65,16 @@ This is the way you’d generally initiate a virtual environment for
 Python in your terminal.
 
 ``` bash
-workon instacart3
+mkvirtualenv r_py3_venv --python=python3 
 ```
 
 When using `reticulate`, however, the call is slightly different. Note
 that I’m using Python 3 in this notebook.
 
 ``` r
-use_virtualenv('instacart3',required=T)
+virtualenv_create("r_py3_venv", python = "/usr/local/bin/python3")
+#> virtualenv: r_py3_venv
+use_virtualenv("r_py3_venv")
 ```
 
 ### Installing Python packages
@@ -95,7 +97,7 @@ virtual environment you want to use and include an R list of the Python
 packages you’d like to install to the envioronment.
 
 ``` r
-virtualenv_install('instacart3',c('pandas','requests'))
+py_install(c("pandas","requests") envname = "r_py3_venv")
 ```
 
 Note: if you don’t specify a virtual environment, reticulate will
@@ -131,7 +133,9 @@ Here’s an example with `pandas.pivot()`:
 
 ``` r
 pandas$pivot
-#> <function pivot at 0x11a9fc488>
+#> <function pivot at 0x1240e8378>
+requests$get
+#> <function get at 0x12467b0d0>
 ```
 
 ## Applied Example: scraping weather.gov data
@@ -367,13 +371,15 @@ Now that we have recent data from all weather stations, converted
 temperatures from Celsius to Farenheit, and converted timezones…let’s
 visualize and see what we learn\! Here’s a plot created with ggplot2
 that shows the fluctuation of temperatures at each of these stations’
-observations from the past few
-days.
+observations from the past few days.
 
 ``` r
-ggplot(data=temperature_data,aes(x=observation_date_time_local,y=temperature)) + 
+ggplot(data=temperature_data,
+       aes(x=observation_date_time_local,
+           y=temperature)) + 
   geom_line(color='gray') + 
-  scale_color_gradient(low='blue',high='orange') +
+  scale_color_gradient(low='blue',
+                       high='orange') +
   geom_point(aes(color=temperature)) + 
   facet_wrap(~station_name)
 ```
