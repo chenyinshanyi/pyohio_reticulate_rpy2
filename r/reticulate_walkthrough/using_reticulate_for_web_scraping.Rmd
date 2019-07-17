@@ -1,6 +1,11 @@
 ---
 title: "Using Python from within R"
-output: github_document
+output:
+  md_document:
+    variant: markdown_github
+    toc: true
+    toc_depth: 3
+
 ---
 
 ```{r setup, include = FALSE}
@@ -53,14 +58,29 @@ mkvirtualenv r_py3_venv --python=python3
 
 When using `reticulate`, however, the call is slightly different.  Note that I'm using Python 3 in this notebook.
 ```{r}
-virtualenv_create("r_py3_venv", python = "/usr/local/bin/python3")
+virtualenv_create("r_py3_venv", 
+                  python = "/usr/local/bin/python3")
 use_virtualenv("r_py3_venv")
 ```
+
+### Using pure Python within RStudio
+reticulate also offers some options for using _pure_ Python (i.e. not inclusive of R syntax or operators) as part of the package.
+
+Here's an example where we can let `knitr` run a Python chunk using ````{python}` as the first link of the chunk.
+```{python}
+print('hello')
+```
+
+You can also pass a raw string of Python code to the `py_eval` function in Reticulate.
+```{r}
+py_eval("print('hello')")
+```
+
 
 ### Installing Python packages
 Reticulate also allows for the installation and import of Python packages.  
 
-For reference, here's how you'd generally install Python packages _outside_ of reticulate using the command line and the `pip` package manager (`conda` is also a popular Python package and environment manager).
+For reference, here's how you'd generally install Python packages _outside_ of reticulate using the command line and the `pip` package manager (`conda` is also a popular Python package and environment manager, and reticulate has functionality here as well).
 ```{bash install_py_package1, eval=FALSE}
 pip install pandas
 pip install requests
@@ -70,7 +90,10 @@ pip install requests
 
 For installation of packages in `reticulate`, you can specify the virtual environment you want to use and include an R list of the Python packages you'd like to install to the envioronment.  
 ```{r install_py_package2, eval=FALSE}
-py_install(c("pandas","requests") envname = "r_py3_venv")
+py_install(c("pandas",
+             "requests",
+             "pandas.io"), 
+           envname = "r_py3_venv")
 ```
 Note: if you don't specify a virtual environment, reticulate will automatically create one called "r-reticulate" so as not to interfere with your system's default Python installation.
 
@@ -82,7 +105,8 @@ import requests
 import pandas.io.json
 ```
 
-Now here's the reticulate equivalent.  Note that you cannot import specific components of a Python library here - it's all or nothing.
+Now here's the reticulate equivalent.
+
 ```{r import_py_package2, message=FALSE}
 pandas = import('pandas')
 requests = import('requests')
@@ -191,7 +215,7 @@ These API calls will occasionally return observations from further back in time,
 ```{r filter_data_convert_date, message=FALSE}
 temperature_data = 
   temperature_data %>% 
-  filter(date>=as.Date('2019-06-01')) %>% 
+  filter(as.Date(date)>=as.Date(today()-days(3))) %>% 
   mutate(observation_date_time_local=as_datetime(date,tz='America/Los_Angeles'))
 ```
 ### Visualizing results

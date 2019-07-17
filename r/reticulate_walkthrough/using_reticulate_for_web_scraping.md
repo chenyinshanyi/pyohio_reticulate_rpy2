@@ -1,7 +1,20 @@
-Using Python from within R
-================
+-   [Context](#context)
+-   [Using reticulate](#using-reticulate)
+    -   [Virtual Environments and Python /
+        reticulate](#virtual-environments-and-python-reticulate)
+    -   [Using pure Python within
+        RStudio](#using-pure-python-within-rstudio)
+    -   [Installing Python packages](#installing-python-packages)
+    -   [Importing Python packages](#importing-python-packages)
+-   [Applied Example: scraping weather.gov
+    data](#applied-example-scraping-weather.gov-data)
+    -   [Context](#context-1)
+    -   [The Weather.gov API](#the-weather.gov-api)
+    -   [Goals of the Exercise](#goals-of-the-exercise)
+    -   [Visualizing results](#visualizing-results)
 
-## Context
+Context
+-------
 
 R & Python are two of the most popular languages used in analytics. Each
 have their unique advantages, and it’s now easier than ever before to
@@ -18,20 +31,21 @@ From RStudio:
 > > The **reticulate** package provides a comprehensive set of tools for
 > > interoperability between Python and R. The package includes
 > > facilities for:
-> > 
-> >   - Calling Python from R in a variety of ways including R Markdown,
+> >
+> > -   Calling Python from R in a variety of ways including R Markdown,
 > >     sourcing Python scripts, importing Python modules, and using
 > >     Python interactively within an R session.
-> > 
-> >   - Translation between R and Python objects (for example, between R
+> >
+> > -   Translation between R and Python objects (for example, between R
 > >     and Pandas data frames, or between R matrices and NumPy arrays).
-> > 
-> >   - Flexible binding to different versions of Python including
+> >
+> > -   Flexible binding to different versions of Python including
 > >     virtual environments and Conda environments.
+> >
+------------------------------------------------------------------------
 
------
-
-## Using reticulate
+Using reticulate
+----------------
 
 Let’s start by loading the R libraries we’ll use for our analysis.
 
@@ -47,9 +61,9 @@ library(lubridate) ## loading this for help with date operations
 Before we get into an applied example, here’s some general housekeeping
 and helpful info for using `reticulate`:
 
-  - Reticulate allows for the use & creation of virtual environments for
+-   Reticulate allows for the use & creation of virtual environments for
     Python.  
-  - Virtual environments allow you to define an isolated version of
+-   Virtual environments allow you to define an isolated version of
     Python that operates completely separate from the main version of
     Python installed on your computer.
 
@@ -72,9 +86,31 @@ When using `reticulate`, however, the call is slightly different. Note
 that I’m using Python 3 in this notebook.
 
 ``` r
-virtualenv_create("r_py3_venv", python = "/usr/local/bin/python3")
+virtualenv_create("r_py3_venv", 
+                  python = "/usr/local/bin/python3")
 #> virtualenv: r_py3_venv
 use_virtualenv("r_py3_venv")
+```
+
+### Using pure Python within RStudio
+
+reticulate also offers some options for using *pure* Python (i.e. not
+inclusive of R syntax or operators) as part of the package.
+
+Here’s an example where we can let `knitr` run a Python chunk using
+\`\`\``{python}` as the first link of the chunk.
+
+``` python
+print('hello')
+#> hello
+```
+
+You can also pass a raw string of Python code to the `py_eval` function
+in Reticulate.
+
+``` r
+py_eval("print('hello')")
+#> NULL
 ```
 
 ### Installing Python packages
@@ -85,7 +121,7 @@ packages.
 For reference, here’s how you’d generally install Python packages
 *outside* of reticulate using the command line and the `pip` package
 manager (`conda` is also a popular Python package and environment
-manager).
+manager, and reticulate has functionality here as well).
 
 ``` bash
 pip install pandas
@@ -97,7 +133,10 @@ virtual environment you want to use and include an R list of the Python
 packages you’d like to install to the envioronment.
 
 ``` r
-py_install(c("pandas","requests") envname = "r_py3_venv")
+py_install(c("pandas",
+             "requests",
+             "pandas.io"), 
+           envname = "r_py3_venv")
 ```
 
 Note: if you don’t specify a virtual environment, reticulate will
@@ -116,8 +155,7 @@ import requests
 import pandas.io.json
 ```
 
-Now here’s the reticulate equivalent. Note that you cannot import
-specific components of a Python library here - it’s all or nothing.
+Now here’s the reticulate equivalent.
 
 ``` r
 pandas = import('pandas')
@@ -133,19 +171,20 @@ Here’s an example with `pandas.pivot()`:
 
 ``` r
 pandas$pivot
-#> <function pivot at 0x1240e8378>
-requests$get
-#> <function get at 0x12467b0d0>
+#> <function pivot at 0x11afaf8c8>
 ```
 
-## Applied Example: scraping weather.gov data
+Applied Example: scraping weather.gov data
+------------------------------------------
 
 ### Context
 
-I’m from Akron, Ohio where the weather is usually cloudy and it’s cold
-for at least 6 months out of the year. Northern California is great;
-I’ve really been fascinated by the climates of each San Francisco
-neighborhood and nearby cities.
+I’m from Akron, Ohio where [the weather is usually cloudy and it’s cold
+for at least 6 months out of the
+year](https://www.usclimatedata.com/climate/akron/ohio/united-states/usoh0008).
+Living in Northern California is great (for many reasons, but weather is
+certainly a big one!); I’ve really been fascinated by the climates of
+each San Francisco neighborhood and nearby cities.
 
 The National Weather Service (NWS) has a [web
 API](https://www.weather.gov/documentation/services-web-api) that can be
@@ -154,7 +193,7 @@ across the US. To explore the Bay Area’s various climates, I decided
 it’d be fun to pull temperature observations for a list of nearby
 weather stations.
 
-To speed up the tutorial here for a moment - I’m starting with a
+To speed up the tutorial here for a moment - I’m going to start with a
 pre-built list of area weather stations.
 
 ``` r
@@ -314,8 +353,7 @@ temperature_data = data.frame(NULL)
 
 Here’s where I invoke Python’s `requests` and `pandas` libraries to help
 with fetching & wrangling data from the API. Have a look at the code for
-an explanation of each
-step.
+an explanation of each step.
 
 ``` r
 ## for every row `i` in my dataframe of stations, I want to do the following
@@ -361,7 +399,7 @@ local time.
 ``` r
 temperature_data = 
   temperature_data %>% 
-  filter(date>=as.Date('2019-06-01')) %>% 
+  filter(as.Date(date)>=as.Date(today()-days(3))) %>% 
   mutate(observation_date_time_local=as_datetime(date,tz='America/Los_Angeles'))
 ```
 
@@ -369,8 +407,8 @@ temperature_data =
 
 Now that we have recent data from all weather stations, converted
 temperatures from Celsius to Farenheit, and converted timezones…let’s
-visualize and see what we learn\! Here’s a plot created with ggplot2
-that shows the fluctuation of temperatures at each of these stations’
+visualize and see what we learn! Here’s a plot created with ggplot2 that
+shows the fluctuation of temperatures at each of these stations’
 observations from the past few days.
 
 ``` r
