@@ -1,3 +1,7 @@
+% Using Python from within R
+% 
+%
+
 -   [Context](#context)
 -   [Using reticulate](#using-reticulate)
     -   [Virtual Environments and Python /
@@ -101,16 +105,16 @@ Here’s an example where we can let `knitr` run a Python chunk using
 \`\`\``{python}` as the first link of the chunk.
 
 ``` python
-print('hello')
-#> hello
+print('hello world!')
+#> hello world!
 ```
 
 You can also pass a raw string of Python code to the `py_eval` function
 in Reticulate.
 
 ``` r
-py_eval("print('hello')")
-#> NULL
+py_eval('[867,"-",5309].pop()')
+#> [1] 5309
 ```
 
 ### Installing Python packages
@@ -171,7 +175,7 @@ Here’s an example with `pandas.pivot()`:
 
 ``` r
 pandas$pivot
-#> <function pivot at 0x11afaf8c8>
+#> <function pivot at 0x1130e58c8>
 ```
 
 Applied Example: scraping weather.gov data
@@ -191,7 +195,7 @@ API](https://www.weather.gov/documentation/services-web-api) that can be
 used to retrieve recently-recorded temperatures from weather stations
 across the US. To explore the Bay Area’s various climates, I decided
 it’d be fun to pull temperature observations for a list of nearby
-weather stations.
+weather stations & see just how different the temperatures actually are.
 
 To speed up the tutorial here for a moment - I’m going to start with a
 pre-built list of area weather stations.

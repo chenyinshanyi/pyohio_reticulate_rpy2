@@ -2,7 +2,7 @@
 title: "Using Python from within R"
 output:
   md_document:
-    variant: markdown_github
+    variant: markdown_github+pandoc_title_block
     toc: true
     toc_depth: 3
 
@@ -68,12 +68,12 @@ reticulate also offers some options for using _pure_ Python (i.e. not inclusive 
 
 Here's an example where we can let `knitr` run a Python chunk using ````{python}` as the first link of the chunk.
 ```{python}
-print('hello')
+print('hello world!')
 ```
 
 You can also pass a raw string of Python code to the `py_eval` function in Reticulate.
 ```{r}
-py_eval("print('hello')")
+py_eval('[867,"-",5309].pop()')
 ```
 
 
@@ -125,7 +125,7 @@ pandas$pivot
 ### Context
 I'm from Akron, Ohio where [the weather is usually cloudy and it's cold for at least 6 months out of the year](https://www.usclimatedata.com/climate/akron/ohio/united-states/usoh0008).  Living in Northern California is great (for many reasons, but weather is certainly a big one!); I've really been fascinated by the climates of each San Francisco neighborhood and nearby cities.
 
-The National Weather Service (NWS) has a [web API](https://www.weather.gov/documentation/services-web-api) that can be used to retrieve recently-recorded temperatures from weather stations across the US.  To explore the Bay Area's various climates, I decided it'd be fun to pull temperature observations for a list of nearby weather stations.
+The National Weather Service (NWS) has a [web API](https://www.weather.gov/documentation/services-web-api) that can be used to retrieve recently-recorded temperatures from weather stations across the US.  To explore the Bay Area's various climates, I decided it'd be fun to pull temperature observations for a list of nearby weather stations & see just how different the temperatures actually are.
 
 To speed up the tutorial here for a moment - I'm going to start with a pre-built list of area weather stations. 
 ```{r read_station_list, warning=FALSE, message=FALSE}
