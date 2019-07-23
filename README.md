@@ -9,5 +9,5 @@ Python and R are two of the most popular languages used for data analysis. They 
 
 ### Links
   - Slides
-  - Using R from a Python environment
+  - [Using R from a Python environment](/python/rpy2_walkthrough)
   - [Using Python from an R environment](/r/reticulate_walkthrough)
