@@ -1,5 +1,5 @@
-# Using Python & R in Harmony
-### PyOhio 2019
+# [Using Python & R in Harmony](https://www.pyohio.org/2019/presentations/77)
+### [PyOhio 2019](https://www.pyohio.org/2019/)
 _Krista Readout & Matthew Brower_
 
 _July 2019_
